@@ -52,6 +52,9 @@ int menu_count = 0;
 
 //Prototype Function
 void title(char string[20]);
+void welcome();
+void search(order *n,foodmenu *menulist);
+void addmenu(foodmenu *menulist);
 void loadmenu(foodmenu *menulist);
 void print(order **head,foodmenu *menulist);
 void printmenu(foodmenu *menulist);
@@ -66,6 +69,7 @@ void deltengah(order **head,int pos);
 void quickSort(int *data,int *arr, int low, int high);
 void swap(int *arr,int i,int j);
 void reverseArray(int arr[], int start, int end);
+char* strcasestr(const char* haystack, const char* needle);
 
 
 
@@ -76,12 +80,14 @@ int main(void){
 	history riwayat;
 	account karyawan[15];
 	foodmenu menulist[20];
+	welcome();
 	loadmenu(menulist); // Function Load menu dari file
 	loadakun(karyawan); // Function Load akun dari file
 	Sleep(2000);
 	system("cls");
 	order *head = NULL; // Pembuatan Head Linkedlist
 	omp_set_num_threads(omp_get_max_threads());
+	
 	while(1){
 		title("Menu Akun");
 		
@@ -125,7 +131,7 @@ void printlist(order **head,foodmenu *menulist){ // Function print linkedlist
         		count++;
 			}
 		}
-		printf("\nHarga Total\t\t: Rp%lf\n",n->total);
+		printf("\nHarga Total\t\t: Rp%.02lf\n",n->total);
 		printf("=====================================================\n");
         ordcount++;
         n = n->next;
@@ -206,12 +212,13 @@ void ordermasuk(order **head,foodmenu *menulist){ //Function untuk menerima orde
 }
 
 void recapprint(history *riwayat,foodmenu *menulist,account *karyawan,int login){
+	
 	int i,urutan[menu_count],temp[menu_count],choice;
 	time_t tm;
     time(&tm);
     FILE *fpr;
-    fpr = fopen("report.txt","w");
-	double tax,sum;
+    fpr = fopen("Report.txt","w");
+	double tax,sum,net;
 	for(i=0;i<menu_count;i++){
 		urutan[i] = i;
 		temp[i] = riwayat->totalorder[i];
@@ -249,11 +256,13 @@ void recapprint(history *riwayat,foodmenu *menulist,account *karyawan,int login)
 	printf("\n=====================================================\n");
 	printf("\n Penjualan Total\t:Rp %.02lf",riwayat->totalharga);
 	tax = (riwayat->totalharga)*11/100;
-	printf("\n PPN 10%%\t\t:Rp. %.02lf",tax);
-	printf("\n Keuntungan Bersih\t:Rp %.02lf",(riwayat->totalharga)-tax);
+	printf("\n PPN 11%%\t\t:Rp %.02lf",tax);
+	net = (riwayat->totalharga)-tax;
+	printf("\n Penjualan Bersih\t:Rp %.02lf",net);
+	printf("\n Laba Bersih\t\t:Rp %.02lf", net/2);
 	printf("\n=====================================================\n");
 	
-	printf("Simpan Rekap Laporan ? (1/0) : ");
+	printf("Simpan Rekap Laporan ? (1 : Ya /0 : Tidak) : ");
 	scanf("%d",&choice);
 	
 	if(choice){
@@ -274,7 +283,8 @@ void recapprint(history *riwayat,foodmenu *menulist,account *karyawan,int login)
 		fprintf(fpr,"\n=====================================================\n");
 		fprintf(fpr,"\n Penjualan Total\t:Rp %.02lf",riwayat->totalharga);
 		fprintf(fpr,"\n PPN 11%%\t\t:Rp. %.02lf",tax);
-		fprintf(fpr,"\n Keuntungan Bersih\t:Rp %.02lf",(riwayat->totalharga)-tax);
+		fprintf(fpr,"\n Penjualan Bersih\t:Rp %.02lf",net);
+		fprintf(fpr,"\n Laba Bersih\t\t:Rp %.02lf", net/2);
 		fprintf(fpr,"\n=====================================================\n");
 		fclose(fpr);
 	}
@@ -331,14 +341,14 @@ void menu(account *karyawan,int login,order **head,foodmenu *menulist,history *r
 	for(i=0;i<20;i++){
     	riwayat->totalorder[i] = 0;
 	}
-	while(choice != 6){
+	while(choice != 7){
 		system("cls");
 		title("Menu");
 		printf("======================================================\n");
 		printf("Penanggung Jawab : %s",karyawan[login].nama);
 		printf("\n======================================================\n");
 		printlist(head,menulist);
-		printf( " \n\t\t1. Input Order\n\t\t2. Finish Order  \n\t\t3. Daftar Order\n\t\t4. Daftar Menu\n\t\t5. Rekap Penjualan");
+		printf( " \n\t\t1. Input Order\n\t\t2. Finish Order \n\t\t3. Daftar Menu\n\t\t4. Rekap Penjualan\n\t\t5. Tambah Menu\n\t\t6. Cari Order\n\t\t7. Exit");
 		printf("\n\t\tMasukkan Pilihan Menu : ");
 		scanf("%d",&choice);
 		switch(choice){
@@ -354,23 +364,82 @@ void menu(account *karyawan,int login,order **head,foodmenu *menulist,history *r
 				system("pause");
 				break;
 			case 3 :
-				printlist(head,menulist);
-				system("pause");
-				break;
-			case 4 :
+				//printlist(head,menulist);
 				system("cls");
 				printmenu(menulist);
 				system("pause");
 				break;
-			case 5 :
+			case 4 :
 				recapprint(riwayat,menulist,karyawan,login);
 				system("pause");
 				break;
-			case 6 :
+			case 5 :
+				addmenu(menulist);
 				break;
-		
+			case 6 :
+				search(*head,menulist);
+				system("pause");
+				break;
+			case 7 :
+				exit(1);
+				break;
 		}		
 	}
+}
+
+void search(order *n,foodmenu *menulist){
+	
+	int i,count,found=0;
+	char temp[100];
+	char jenis[3][20]={"Cash","Qris","Bank"};
+	
+	title("Search");
+	printf("Cari Berdasarkan Nama\t\t: ");
+	scanf(" %99[^\n]s",&temp);
+	while(n != NULL){
+		printf("1\n");
+		if(strcasestr(n->nama,temp)){
+			count=1;
+			printf("\n======================================================");
+        	printf("\nNama Pemesan\t\t: %s", n->nama);
+        	printf("\nJenis Pembayaran\t: %s",jenis[(n->jenis)-1]);
+        	printf("\nPesanan : ");
+        	for(i=0;i<20;i++){ //Looping print pesanan
+        		if(n->order[i]){
+        			printf("\n%d. %s\t\tx%d",count,menulist[i].nama,n->order[i]);
+        			count++;
+				}
+			}
+			printf("\nHarga Total\t\t: Rp%.2lf\n",n->total);
+			printf("=====================================================\n");
+        	found = 1;
+		}
+		n = n->next;
+	}
+	if(found == 0){
+		printf("Data Tidak Ditemukan !!!\n");
+	}
+	
+}
+
+void addmenu(foodmenu *menulist){
+	int i;
+	FILE *fpr;
+    fpr = fopen("menu.csv","w");
+	title("Tambah Menu");
+	printf("Masukkan Menu Baru\t\t:");
+	scanf(" %99[^\n]s",&menulist[menu_count].nama);
+	printf("Masukkan Jenis (0:Makanan/1:Minuman)\t:");
+	scanf("%d",&menulist[menu_count].jenis);
+	printf("Masukkan Harga\t:");
+	scanf("%lf",&menulist[menu_count].harga);
+	menu_count++;
+	for(i=0;i<menu_count;i++){
+		fprintf(fpr,"%s;%d;%.0lf\n",menulist[i].nama,menulist[i].jenis,menulist[i].harga);
+	}
+	fclose(fpr);
+	system("pause");
+	return;
 }
 
 void deltengah(order **head,int pos){
@@ -558,11 +627,21 @@ void loadmenu(foodmenu *menulist){
 void daftar(account *karyawan){
 	
 	FILE *fp;
+	char pass[100],c;
+	int j;
 	title("Sign-Up");
     printf("\nNama Manajer : " );
     scanf(" %99[^\n]s", karyawan[acc_count].nama);
     printf("\nPassword : " );
-    scanf(" %99[^\n]s", karyawan[acc_count].pass);
+    while(j<99){
+	    	pass[j]=getch();
+	    	c=pass[j];
+	    	if(c==13) break;
+	    	else printf("*");
+	    	j++;
+	}
+	pass[j]='\0';
+	strcpy(karyawan[acc_count].pass,pass);
 	
 	fp = fopen("akun.txt","a");
 	fprintf(fp,"%s;%s;\n",karyawan[acc_count].nama,karyawan[acc_count].pass);
@@ -643,4 +722,44 @@ void reverseArray(int arr[], int start, int end){
         start++;
         end--;
     }  
-} 
+}
+
+void welcome(){
+	//system("COLOR OF");
+	Sleep(1000);
+	printf("\n\n\n\n\n\n\n\t\t\t\t\t WELCOME TO\n");
+	printf("\n\n\t\t\t\t Restaurant Management System !!!!\n\n");
+	Sleep(1000);
+	printf("\n\t\t\t***************************************************\n");
+	printf("\n\t\t\t***************************************************\n");
+	printf("\n\t\t\t**********  Restaurant Management System   ********\n");
+	printf("\n\t\t\t***************************************************\n");
+	printf("\n\t\t\t***************************************************\n");
+	Sleep(2000);
+	//system("COLOR OF");
+	printf("\n\n\n\nEnter any key ................ ");
+	
+	getch();
+	system("cls");
+	
+}
+
+char* strcasestr(const char* haystack, const char* needle){
+    if (!needle[0]) return (char*) haystack;
+    int i, j;
+
+    for (i = 0; haystack[i]; i++) {
+        int matches = 1;
+        for (j = 0; needle[j]; j++) {
+            if (!haystack[i + j]) return NULL;
+
+            if(tolower((unsigned char)needle[j]) !=
+                tolower((unsigned char)haystack[i + j])) {
+                matches = 0;
+                break;
+            }
+        }
+        if (matches) return (char *)(haystack + i);
+    }
+    return NULL;
+}

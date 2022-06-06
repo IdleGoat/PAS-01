@@ -1,28 +1,30 @@
 
-Waktu Pembuatan Laporan : Thu May 26 09:26:02 2022
+Waktu Pembuatan Laporan : Tue Jun 07 06:19:06 2022
 
-Penanggung Jawab : Dio
+Penanggung Jawab : dio
 =====================================================
   Menu			Jumlah	Harga
 =====================================================
 
-1. Nasi Rames   	3	Rp 30000
-2. Kwetiau Ayam   	2	Rp 24000
-3. Nasi Goreng   	0	Rp 0
-4. Indomie Telor	0	Rp 0
-5. Ayam Geprek   	0	Rp 0
-6. Es Pisang Hijau	0	Rp 0
-7. Es Campur Dawet	0	Rp 0
-8. Es Teh Manis  	0	Rp 0
-9. Kwetiau Seafood	0	Rp 0
+1. Nasi Goreng   	43	Rp 537500
+2. Kwetiau Seafood	3	Rp 45000
+3. Dendeng Balado	0	Rp 0
+4. Es Teh Manis  	0	Rp 0
+5. Indomie Telor	0	Rp 0
+6. Ayam Geprek   	0	Rp 0
+7. Es Pisang Hijau	0	Rp 0
+8. Es Campur Dawet	0	Rp 0
+9. Kwetiau Ayam   	0	Rp 0
 10. Es Jeruk       	0	Rp 0
+11. Nasi Rames   	0	Rp 0
 =====================================================
- Penjualan Cash		:Rp 54000.00
- Penjualan Qris		:Rp 0.00
- Penjualan Bank		:Rp 0.00
+ Penjualan Cash		:Rp 0.00
+ Penjualan Qris		:Rp 45000.00
+ Penjualan Bank		:Rp 537500.00
 =====================================================
 
- Penjualan Total	:Rp 54000.00
- PPN 11%		:Rp. 5940.00
- Keuntungan Bersih	:Rp 48060.00
+ Penjualan Total	:Rp 582500.00
+ PPN 11%		:Rp. 64075.00
+ Penjualan Bersih	:Rp 518425.00
+ Laba Bersih	:Rp 259212.50
 =====================================================
